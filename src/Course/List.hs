@@ -84,7 +84,7 @@ headOr _ (t:.listoft) = t
 
 
 -- If it does not have a Nil, then it is not a list
-mylist = 1 :. 2 :. 3 :. Nil
+--mylist = 1 :. 2 :. 3 :. Nil
 
 
 
@@ -95,9 +95,11 @@ mylist = 1 :. 2 :. 3 :. Nil
 --
 -- >>> product (1 :. 2 :. 3 :. 4 :. Nil)
 -- 24
+--product :: List Int -> Int
 product :: List Int -> Int
-product =
-  error "todo"
+product Nil = 0
+--product (h :. t) = h * (product t)
+product (h :. t) = h * ( if (product t == 0) then (1) else (product t) )
 
 -- | Sum the elements of the list.
 --
@@ -108,11 +110,10 @@ product =
 -- 10
 --
 -- prop> foldLeft (-) (sum x) x == 0
-sum ::
-  List Int
-  -> Int
-sum =
-  error "todo"
+sum :: List Int -> Int
+sum Nil = 0
+sum (h :. t) = h + sum t
+
 
 -- | Return the length of the list.
 --
@@ -120,9 +121,7 @@ sum =
 -- 3
 --
 -- prop> sum (map (const 1) x) == length x
-length ::
-  List a
-  -> Int
+length :: List a -> Int
 length =
   error "todo"
 

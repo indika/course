@@ -190,6 +190,10 @@ headOr h Nil =  h
     What is it supposed to do,
     take the product of the items in the list
 
+    product (1 :. 2 :. 3 :. Nil)
+
+    * How do I construct Lists?
+
 
 
 
@@ -282,4 +286,42 @@ data MyList t =
 
 
 
+* Fold Left and Fold Right
+
+    fold left,
+
+
+
+    foldLeft :: (b -> a -> a) -> b -> List a -> b
+    foldLeft     f               z    list
+
+
+    What the fuck?
+        why does it do this?
+
+    you can replace f and z with anything you like,
+        but just give me the sum of the list
+
+
+
+
+
+    var r = z
+    foreach e in list {
+        r = (+) r e;
+    }
+    return r;
+
+    sum = foldLeft (+) 0
+
+
+
+    * Computing the length of the list
+    var r = 0;
+    foreach e in list {
+        r = \r _ -> r + 1
+    }
+    return r;
+
+    length = foldLeft (\r _ -> r + 1) 0
 
