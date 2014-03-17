@@ -122,8 +122,8 @@ sum (h :. t) = h + sum t
 --
 -- prop> sum (map (const 1) x) == length x
 length :: List a -> Int
-length =
-  error "todo"
+length Nil = 0
+length (h :. t) = 1 + length t
 
 -- | Map the given function on each element of the list.
 --
@@ -133,10 +133,11 @@ length =
 -- prop> headOr x (map (+1) infinity) == 1
 --
 -- prop> map id x == x
-map ::
-  (a -> b)
-  -> List a
-  -> List b
+map :: (a -> b) -> List a -> List b
+
+-- apparently, write down all the cases
+-- map Nil (h :. t) = (h :. t)
+
 map =
   error "todo"
 
@@ -150,12 +151,13 @@ map =
 -- prop> filter (const True) x == x
 --
 -- prop> filter (const False) x == Nil
-filter ::
-  (a -> Bool)
-  -> List a
-  -> List a
-filter =
-  error "todo"
+filter :: (a -> Bool) -> List a -> List a
+
+filter _ Nil = Nil
+filter p (h:.t) = if p h then h :. filter p t else filter p t
+
+
+
 
 -- | Append two lists to a new list.
 --

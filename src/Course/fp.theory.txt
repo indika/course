@@ -325,3 +325,69 @@ data MyList t =
 
     length = foldLeft (\r _ -> r + 1) 0
 
+
+    let mynewlength = foldLeft (\r _ -> r + 1) 0
+    :t mynewlength
+
+
+
+    [ No such thing as variables - mutable state remember ]
+
+
+    * foldRight
+        does constructor replacement
+
+    foldRight :: (a -> b -> b) -> b -> List a -> b
+
+        list = a :. b :. c :. d :. Nil
+
+
+        does something with cons
+
+
+        foldRightn
+
+        if we want to map a function across a list,
+
+
+        mapagain f list = foldRight (\a r -> f a :. r) Nil list
+            this can be retyped in infix position
+
+        mapagain f list = foldRight (\a r -> (:.) (f a) Nil list
+
+
+        mapagain (+10)
+
+
+
+        * Function composition,
+            doing some gluing
+
+            mapagain f = foldRight ( (:.) . f ) Nil
+
+            try to think about (++) in terms of foldRight
+
+
+
+        (++)
+            to append two list together,
+
+
+
+
+-- (a -> b) -> List a -> List b
+let mapp f = foldRight ( (:.) . f ) Nil
+:t mapp
+
+
+let rev = foldLeft ( flip (:.) ) Nil
+        flatten
+
+
+
+
+* Filter
+
+filter p (h:.t) =
+    let aname = filter p t
+    in if p h then h :. aname else anme
