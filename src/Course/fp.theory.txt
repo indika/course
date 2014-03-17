@@ -1,0 +1,161 @@
+* Function Theory
+
+
+
+An expression expr is referentially transparent if in all programs p,
+all occurrences of expr in p can b ereplaced by the result assigned
+to
+
+
+something about substituitions, with no effect
+
+p = {
+    result = expr
+    result = expr
+    f(expr, expr)
+}
+
+
+has the program changed? if so, then it is not referentially transparent.
+
+
+
+* Left association
+    [ Function application is left associative]
+
+
+* Right associative
+
+    Int -> (Int -> Int)
+    a function that takes an Int,
+        and returns a function
+        that takes an Int and returns an Int
+
+
+\y
+    this is an anoymous function
+
+
+
+all functions in haskell take one parameter
+
+
+
+* Subtraction versus Negative
+
+
+
+* Higher Order Functions
+
+
+
+    can pass functions as values
+
+    orange (\n -> n + 6)
+
+    orange (\n m -> n + m)
+    :t (\n m -> n + m)
+
+
+
+
+
+* Shapes
+
+    data Shape = Box Int
+    data Shape = Box Int deriving (Show, Eq)
+
+    it looks like Shape is the thing that is constructed
+
+    Box is what we call it,
+        but I think that Shape is a predefined constructor
+
+    it has a constructor has Box,
+
+
+    sometimes the type constructor and the data constructor can have the same name
+        like:
+        data Shape = Shape Int deriving (Show, Eq)
+
+
+    doesn't want boxes anymore,
+        so change things to a Rect
+
+        data Shape = Rectangle Int Int deriving (Show, Eq)
+
+
+
+    it appears as though Shape is not a value,
+    but it is a Type
+
+    but Rectangle, does have a type:
+        *Main> :t Rectangle
+        Rectangle :: Int -> Int -> Shape
+
+
+
+    * Now, we are having different types of Shapes,
+
+    data Shape = Rectangle Int Int | Circle Int deriving (Show, Eq)
+
+        we can make this look a little bit more pretty:
+
+        data Shape =
+            Rectangle Int Int
+            | Circle Int
+            deriving (Show, Eq)
+
+
+
+    so now I can do things like this:
+        Rectangle 4 6
+        *Main> Circle 3
+        Circle 3
+
+
+
+    * And now for some pattern matching
+
+        area :: Shape -> Int
+        area (Rectangle w h) = w * h
+        area (Circle r) = r * 2 * 3
+
+
+        * And this is how I call it:
+            area (Rectangel 5 3)
+
+
+
+
+* Some stuff that does not really work for me
+
+
+data Person =
+    Person {
+        name :: String
+        age :: Int
+    } deriving (Eq, Show)
+
+
+indika = Person "indika" 30
+
+p { name = 'mark', age = 100}
+
+
+
+
+
+* Understanding the Data Type
+
+    it is apparently a recursive data type
+
+    4 :. 5 :. Nil
+    this returns a List
+    [4, 5]
+
+
+
+
+* headRo
+
+headOr h Nil =  h

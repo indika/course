@@ -68,12 +68,17 @@ foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
 -- prop> x `headOr` infinity == 0
 --
 -- prop> x `headOr` Nil == x
+--
+-- It should return the head
+-- Or return the value a, if the list is empty
+-- The three arrows >>> is a test case
 headOr ::
   a
   -> List a
   -> a
-headOr =
-  error "todo"
+headOr h Nil =  h
+headOr h (t:.listoft) =  t
+
 
 -- | The product of the elements of a list.
 --
@@ -203,7 +208,7 @@ flatMap =
 
 -- | Convert a list of optional values to an optional list of values.
 --
--- * If the list contains all `Full` values, 
+-- * If the list contains all `Full` values,
 -- then return `Full` list of values.
 --
 -- * If the list contains one or more `Empty` values,
