@@ -73,13 +73,10 @@ foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
 -- It should return the head
 -- Or return the value a, if the list is empty
 -- The three arrows >>> is a test case
-headOr ::
-  a
-  -> List a
-  -> a
+headOr :: a -> List a -> a
 headOr h Nil = h
-headOr _ (t:.listoft) = t
---headOr _ (t:._) = t
+--headOr h (head:.t) = head
+headOr _ (t:._) = t
 
 
 
@@ -97,9 +94,9 @@ headOr _ (t:.listoft) = t
 -- 24
 --product :: List Int -> Int
 product :: List Int -> Int
-product Nil = 0
---product (h :. t) = h * (product t)
-product (h :. t) = h * ( if (product t == 0) then (1) else (product t) )
+product Nil = 1
+product (h :. t) = h * product (t)
+
 
 -- | Sum the elements of the list.
 --
@@ -133,13 +130,12 @@ length (h :. t) = 1 + length t
 -- prop> headOr x (map (+1) infinity) == 1
 --
 -- prop> map id x == x
-map :: (a -> b) -> List a -> List b
-
 -- apparently, write down all the cases
--- map Nil (h :. t) = (h :. t)
+map :: (a -> b) -> List a -> List b
+map _ Nil = Nil
+--why can I not do this?
+map f (h:.t) = f h :. map f t
 
-map =
-  error "todo"
 
 -- | Return elements satisfying the given predicate.
 --
@@ -241,6 +237,16 @@ seqOptional ::
 seqOptional =
   error "todo"
 
+
+--mapOptional :: (a -> b) -> Optional a -> Optional b
+--mapOptional _ Empty    = Empty
+--mapOptional f (Full a) = Full (f a)
+
+--bindOptional :: (a -> Optional b) -> Optional a -> Optional b
+--bindOptional _ Empty    = Empty
+--bindOptional f (Full a) = f a
+
+
 -- | Find the first element in the list matching the predicate.
 --
 -- >>> find even (1 :. 3 :. 5 :. Nil)
@@ -321,6 +327,8 @@ produce =
 -- prop> let types = x :: List Int in notReverse x ++ notReverse y == notReverse (y ++ x)
 --
 -- prop> let types = x :: Int in notReverse (x :. Nil) == x :. Nil
+-- this is a Red herring
+-- types and tests are very important
 notReverse ::
   List a
   -> List a
