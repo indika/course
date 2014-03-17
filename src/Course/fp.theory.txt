@@ -156,6 +156,130 @@ p { name = 'mark', age = 100}
 
 
 
-* headRo
+* headOr
 
 headOr h Nil =  h
+
+
+    * What is headOr about?
+
+
+    So we are definiting a function
+    The function has a type signature
+    And it does some pattern matching
+
+    What is the intension of the function?
+        it takes a value,
+        it takes a list
+
+        and returns the value if the list is empty
+
+
+    headOr :: a -> List a -> a
+    headOr h Nil = h
+
+
+
+* product
+
+    What is product about?
+
+    We are defining a function
+    That takes a List of Int, and returns an Int
+
+    What is it supposed to do,
+    take the product of the items in the list
+
+
+
+
+
+* Definition of a List
+
+    we are defining a list here
+
+    data List t =
+      Nil
+      | t :. List t
+      deriving (Eq, Ord)
+
+    it is either Nil,
+    or an item, and itself
+
+    this is a recursive definition of a list
+
+
+    * There was something about downcasting
+
+
+    * something about has a type, and is a type
+        Int is a Type
+        7 Has a Type
+
+        List is a Type
+        :t is type of
+            so it does not make sense to do,
+            :t List
+
+
+data List t =
+  Nil
+  | t :. List t
+  deriving (Eq, Ord)
+
+data List t = Nil | RCons t (List t) deriving (Eq, Ord)
+
+* If I use a proper name,
+    it has to be in prefix
+
+* Parenthesis around List
+    because it becomes ambigious
+
+
+
+>> :t (:.)
+(:.) :: t -> List t -> List t
+
+>> :t (:.) "bob"
+(:.) "bob" :: IsString t => List t -> List t
+
+>> :t (:.) 5
+(:.) 5 :: Num t => List t -> List t
+
+>> :t (:.)
+(:.) :: t -> List t -> List t
+
+>> :t (:.) 5
+(:.) 5 :: Num t => List t -> List t
+
+>> :t (:.) (5::Int)
+(:.) (5::Int) :: List Int -> List Int
+
+>> :t (:.) (5::Int) Nil
+(:.) (5::Int) Nil :: List Int
+
+>> (:.) (5::Int) Nil
+[5]
+
+>> :t (:.) (5::Int) ((:.) 7 Nil  )
+(:.) (5::Int) ((:.) 7 Nil  ) :: List Int
+
+>> (:.) (5::Int) ((:.) 7 Nil  )
+[5,7]
+
+
+data MyList t =
+  Nil
+  | RCons t (MyList t)
+  deriving (Eq, Ord)
+
+  :t Rcons is
+  -- RCons :: t -> MyList t -> MyList t
+
+  because RCons  returns a data type MyList t
+
+
+
+
+
+

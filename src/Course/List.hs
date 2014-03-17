@@ -28,6 +28,7 @@ import qualified Numeric as N
 -- BEGIN Helper functions and data types
 
 -- The custom list type
+-- The :.
 data List t =
   Nil
   | t :. List t
@@ -76,8 +77,15 @@ headOr ::
   a
   -> List a
   -> a
-headOr h Nil =  h
-headOr h (t:.listoft) =  t
+headOr h Nil = h
+headOr _ (t:.listoft) = t
+--headOr _ (t:._) = t
+
+
+
+-- If it does not have a Nil, then it is not a list
+mylist = 1 :. 2 :. 3 :. Nil
+
 
 
 -- | The product of the elements of a list.
@@ -87,9 +95,7 @@ headOr h (t:.listoft) =  t
 --
 -- >>> product (1 :. 2 :. 3 :. 4 :. Nil)
 -- 24
-product ::
-  List Int
-  -> Int
+product :: List Int -> Int
 product =
   error "todo"
 
