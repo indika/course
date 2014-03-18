@@ -28,7 +28,6 @@ import qualified Numeric as N
 -- BEGIN Helper functions and data types
 
 -- The custom list type
--- The :.
 data List t =
   Nil
   | t :. List t
@@ -69,21 +68,12 @@ foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
 -- prop> x `headOr` infinity == 0
 --
 -- prop> x `headOr` Nil == x
---
--- It should return the head
--- Or return the value a, if the list is empty
--- The three arrows >>> is a test case
-headOr :: a -> List a -> a
+headOr ::
+  a
+  -> List a
+  -> a
 headOr h Nil = h
---headOr h (head:.t) = head
 headOr _ (t:._) = t
-
-
-
--- If it does not have a Nil, then it is not a list
---mylist = 1 :. 2 :. 3 :. Nil
-
-
 
 -- | The product of the elements of a list.
 --
@@ -92,11 +82,11 @@ headOr _ (t:._) = t
 --
 -- >>> product (1 :. 2 :. 3 :. 4 :. Nil)
 -- 24
---product :: List Int -> Int
-product :: List Int -> Int
-product Nil = 1
-product (h :. t) = h * product (t)
-
+product ::
+  List Int
+  -> Int
+product =
+  foldRight (*) 1
 
 -- | Sum the elements of the list.
 --
@@ -107,10 +97,13 @@ product (h :. t) = h * product (t)
 -- 10
 --
 -- prop> foldLeft (-) (sum x) x == 0
-sum :: List Int -> Int
-sum Nil = 0
-sum (h :. t) = h + sum t
-
+sum ::
+  List Int
+  -> Int
+sum Nil =
+  0
+sum (h :. t) =
+  h + sum t
 
 -- | Return the length of the list.
 --
@@ -118,9 +111,13 @@ sum (h :. t) = h + sum t
 -- 3
 --
 -- prop> sum (map (const 1) x) == length x
-length :: List a -> Int
-length Nil = 0
-length (h :. t) = 1 + length t
+length ::
+  List a
+  -> Int
+length Nil =
+  0
+length (_ :. t) =
+  1 + length t
 
 -- | Map the given function on each element of the list.
 --
@@ -130,13 +127,22 @@ length (h :. t) = 1 + length t
 -- prop> headOr x (map (+1) infinity) == 1
 --
 -- prop> map id x == x
--- apparently, write down all the cases
--- f is the function (a -> b)
--- could not simply apply f to t because t is a list
-map :: (a -> b) -> List a -> List b
-map _ Nil = Nil
-map f (h:.t) = f h :. map f t
+map ::
+  (a -> b)
+  -> List a
+  -> List b
+map f Nil =
+  Nil
+map f (h :. t) =
+  -- f :: a -> b
+  -- h :: a
+  -- t :: List a
+  -- map :: (a -> b) -> List a -> List b
 
+  -- f h :: b
+  -- f h :. map f t :: List b
+  -- map f t :: List b
+  f h :. map f t
 
 -- | Return elements satisfying the given predicate.
 --
@@ -148,13 +154,18 @@ map f (h:.t) = f h :. map f t
 -- prop> filter (const True) x == x
 --
 -- prop> filter (const False) x == Nil
-filter :: (a -> Bool) -> List a -> List a
+filter ::
+  (a -> Bool)
+  -> List a
+  -> List a
+filter _ Nil =
+  Nil
+filter p (h:.t) =
+  (if p h then (h :.) else id) (filter p t)
 
-filter _ Nil = Nil
-filter p (h:.t) = if p h then h :. filter p t else filter p t
-
-
-
+filteragain :: (a -> Bool) -> (List a -> List a)
+filteragain p =
+  foldRight (\h -> if p h then (h :.) else id) Nil
 
 -- | Append two lists to a new list.
 --
@@ -168,12 +179,36 @@ filter p (h:.t) = if p h then h :. filter p t else filter p t
 -- prop> (x ++ y) ++ z == x ++ (y ++ z)
 --
 -- prop> x ++ Nil == x
-(++) :: List a -> List a -> List a
-(++) =
-  error "todo"
+(++) ::
+  List a
+  -> List a
+  -> List a
+(++) Nil y =
+  y
+(++) (h:.t) y =
+  h :. ((++) t y)
+
+(+++) :: List a -> List a -> List a
+(+++) = flip (foldRight (:.))
 
 infixr 5 ++
 
+bar :: Optional Int -> Int
+bar Empty = 0
+bar (Full n) = 1
+
+bar' :: List (Optional Int) -> Int
+bar' ((Full n) :. tail) = undefined
+bar' (Empty :. tail) = undefined
+bar' Nil = undefined
+
+bar'' :: List (Optional Int) -> Int
+bar'' (h :. t) =
+  case h of
+    Empty -> 0
+    Full n -> n
+bar'' Nil =
+  0
 -- | Flatten a list of lists to a list.
 --
 -- >>> flatten ((1 :. 2 :. 3 :. Nil) :. (4 :. 5 :. 6 :. Nil) :. (7 :. 8 :. 9 :. Nil) :. Nil)
@@ -187,8 +222,18 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten =
-  error "todo"
+flatten Nil =
+  Nil
+flatten (h :. t) =
+  h ++ flatten t
+
+flatten' :: List (List a) -> List a
+flatten' = foldRight (++) Nil
+
+-- (a :. b :. c :. Nil) :. (d :. e :. Nil) :. (f :. Nil) :. Nil
+-- (a :. b :. c :. Nil) ++ (d :. e :. Nil) ++ (f :. Nil) ++ Nil
+-- a :. b :. c :. d :. e :. f :. Nil
+
 
 -- | Map a function then flatten to a list.
 --
@@ -200,10 +245,36 @@ flatten =
 -- prop> headOr x (flatMap id (y :. infinity :. Nil)) == headOr 0 y
 --
 -- prop> flatMap id (x :: List (List Int)) == flatten x
-flatMap :: (a -> List b) -> List a -> List b
-flatMap =
-  error "todo"
+flatMap ::
+  (a -> List b)
+  -> List a
+  -> List b
+flatMap f Nil =
+  Nil
+flatMap f (h :. t) =
+  -- f :: a -> List b
+  -- h :: a
+  -- t :: List a
+  -- flatMap :: (a -> List b) -> List a -> List b
+  -- f h :: List b
+  -- flatMap f t :: List b
+  -- (++) :: List b -> List b -> List b
+  -- f h ++ flatMap f t :: List b
+  f h ++ flatMap f t
 
+flatMapagain f = foldRight ((++) . f) Nil
+
+flattenagain = flatMap id
+
+
+flatMap' :: (a -> List b) -> List a -> List b
+flatMap' f =
+-- flatten (map f as)
+-- (.) :: (b -> c) -> (a -> b) -> a -> c
+-- (.) flatten ()
+-- f       (g     a)
+   flatten . map f
+-- (.) = f (g a)
 -- | Convert a list of optional values to an optional list of values.
 --
 -- * If the list contains all `Full` values,
@@ -230,17 +301,35 @@ seqOptional ::
   List (Optional a)
   -> Optional (List a)
 seqOptional =
-  error "todo"
+  foldRight (twiceOptional (:.)) (Full Nil)
 
+  {-
+seqOptional Nil =
+  Full Nil
+seqOptional (h:.t) =
+  twiceOptional (:.) h (seqOptional t)
+-}
 
---mapOptional :: (a -> b) -> Optional a -> Optional b
---mapOptional _ Empty    = Empty
---mapOptional f (Full a) = Full (f a)
+  {-
+twiceOptional ::
+  (a -> b -> c) -> Optional a -> Optional b -> Optional c
+twiceOptional f h b =
+  bindOptional (\i ->
+  mapOptional (f i) b) h
 
---bindOptional :: (a -> Optional b) -> Optional a -> Optional b
---bindOptional _ Empty    = Empty
---bindOptional f (Full a) = f a
+    -}
 
+       {-
+
+bindOptional :: (a -> Optional b) -> Optional a -> Optional b
+bindOptional _ Empty    = Empty
+bindOptional f (Full a) = f a
+-}
+{-
+mapOptional :: (a -> b) -> Optional a -> Optional b
+mapOptional _ Empty    = Empty
+mapOptional f (Full a) = Full (f a)
+-}
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -262,8 +351,15 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find =
-  error "todo"
+find f Nil =
+  Empty
+find f (h :. t) =
+  ifproper (find f t) (Full h) (f h)
+
+find' f = foldRight undefined Nil
+
+ifproper _ t True = t
+ifproper f _ False = f
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -281,13 +377,20 @@ find =
 lengthGT4 ::
   List a
   -> Bool
-lengthGT4 =
-  error "todo"
+lengthGT4 (_:._:._:._:._:._) =
+  True
+lengthGT4 _ =
+  False
 
 -- | Reverse a list.
 --
 -- >>> reverse Nil
 -- []
+--
+-- >>> reverse (1 :. 2 :. 3 :. Nil)
+-- [3, 2, 1]
+--
+-- reverse (h :. t) = reverse t ++ (h :. Nil)
 --
 -- prop> let types = x :: List Int in reverse x ++ reverse y == reverse (y ++ x)
 --
@@ -296,7 +399,24 @@ reverse ::
   List a
   -> List a
 reverse =
-  error "todo"
+  foldLeft (hithere) Nil
+
+hithere r e = e :. r
+
+reverse0 :: List a -> List a -> List a
+reverse0    acc       Nil    = acc
+reverse0    acc       (h:.t) = reverse0 (h:.acc) t
+
+
+
+
+
+
+
+
+
+
+
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
@@ -310,8 +430,8 @@ produce ::
   (a -> a)
   -> a
   -> List a
-produce =
-  error "todo"
+produce f a =
+  a:.produce f (f a)
 
 -- | Do anything other than reverse a list.
 -- Is it even possible?
@@ -319,11 +439,10 @@ produce =
 -- >>> notReverse Nil
 -- []
 --
--- prop> let types = x :: List Int in notReverse x ++ notReverse y == notReverse (y ++ x)
+-- prop> let types = x :: List Int
+-- in notReverse x ++ notReverse y == notReverse (y ++ x)
 --
 -- prop> let types = x :: Int in notReverse (x :. Nil) == x :. Nil
--- this is a Red herring
--- types and tests are very important
 notReverse ::
   List a
   -> List a
