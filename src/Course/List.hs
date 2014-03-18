@@ -131,9 +131,10 @@ length (h :. t) = 1 + length t
 --
 -- prop> map id x == x
 -- apparently, write down all the cases
+-- f is the function (a -> b)
+-- could not simply apply f to t because t is a list
 map :: (a -> b) -> List a -> List b
 map _ Nil = Nil
---why can I not do this?
 map f (h:.t) = f h :. map f t
 
 
@@ -167,10 +168,7 @@ filter p (h:.t) = if p h then h :. filter p t else filter p t
 -- prop> (x ++ y) ++ z == x ++ (y ++ z)
 --
 -- prop> x ++ Nil == x
-(++) ::
-  List a
-  -> List a
-  -> List a
+(++) :: List a -> List a -> List a
 (++) =
   error "todo"
 
@@ -202,10 +200,7 @@ flatten =
 -- prop> headOr x (flatMap id (y :. infinity :. Nil)) == headOr 0 y
 --
 -- prop> flatMap id (x :: List (List Int)) == flatten x
-flatMap ::
-  (a -> List b)
-  -> List a
-  -> List b
+flatMap :: (a -> List b) -> List a -> List b
 flatMap =
   error "todo"
 
