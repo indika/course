@@ -11,7 +11,13 @@ import qualified Prelude as P
 
 class Functor f where
   -- Pronounced, eff-map.
-  (<$>) :: (a -> b) -> f a -> f b
+  (<$>) ::
+    (a -> b)
+    -> f a
+    -> f b
+
+
+
 
 infixl 4 <$>
 
@@ -28,7 +34,7 @@ instance Functor Id where
   -- data Id a = Id a
   -- (<$>) :: (a -> b) -> f a -> f b
   -- (<$>) :: (a -> b) -> Id a -> Id b
-  (<$>)        f          (Id a) = Id (f a)
+  (<$>) f (Id a) = Id (f a)
 
 -- | Maps a function on the List functor.
 --
@@ -38,10 +44,13 @@ instance Functor Id where
 -- >>> (+1) <$> (1 :. 2 :. 3 :. Nil)
 -- [2,3,4]
 instance Functor List where
--- (<$>) :: (a -> b) -> f a -> f b
--- (<$>) :: (a -> b) -> List a -> List b
--- (<$>) :: f list -> map f list
-  (<$>) f list = map f list
+  -- (<$>) :: (a -> b) -> f a -> f b
+  -- (<$>) :: (a -> b) -> List a -> List b
+  -- (<$>) f list = map f list
+  (<$>) _ Nil =
+    Nil
+  (<$>) f (h :. t) =
+    f h :. (f <$> t)
 
 -- | Maps a function on the Optional functor.
 --
@@ -51,36 +60,39 @@ instance Functor List where
 -- >>> (+1) <$> Full 2
 -- Full 3
 instance Functor Optional where
--- (<$>) :: (a -> b) -> f a -> f b
--- (<$>) :: (a -> b) -> Optional a -> Optional b
-  (<$>) _ Empty = Empty
-  (<$>) f (Full a) = Full (f a)
+  -- (<$>) :: (a -> b) -> f a -> f b
+  -- (<$>) :: (a -> b) -> Optional a -> Optional b
+  (<$>) _ Empty =
+    Empty
+  (<$>) f (Full a) =
     -- f :: a -> b
     -- a :: a
-    -- f a : b
+    -- f a :: b
     -- ??? :: Optional b
-
-    -- (<$>) f optional = mapOptional
+    Full (f a)
+  -- (<$>) f optional = mapOptional f optional
 
 -- | Maps a function on the reader ((->) t) functor.
 --
 -- >>> ((+1) <$> (*2)) 8
 -- 17
 instance Functor ((->) t) where
--- (<$>) :: (a -> b) -> f a -> f b
--- (<$>) :: (a -> b) -> ((->) t) a -> ((->) t) b
--- (<$>) :: (a -> b) -> (t -> a) -> (t -> b)
--- (<$>) :: (a -> b) -> (t -> a) -> t -> b
-  (<$>)      f           g          t =
-    -- f :: a -> b
-    -- g :: t -> a
-    -- t :: t
-    -- g t :: a
-    -- f ( g t) :: b
-    -- undefined :: b
-    f (g t)
-    -- but this might be function composition
-    -- fmap is the same as function composition
+  -- (<$>) :: (a -> b) -> f a -> f b
+  -- (<$>) :: (a -> b) -> (((->) t) a) -> (((->) t) b)
+  -- (<$>) :: (a -> b) -> (t -> a) -> (t -> b)
+  -- (<$>) :: (a -> b) -> (t -> a) -> t -> b
+  --   (square -> circle) -> (star -> square) -> star -> circle
+  --  f(x) = z,  g(y) = x, x,    ? = z
+  (<$>)       f           g           t  =
+     -- f :: a -> b
+     -- g :: t -> a
+     -- t :: t
+     -- g t :: a
+     -- f (g t) :: b
+     -- undefined :: b
+     f (g t)
+  -- (<$>) = (.)
+
 
 -- | Anonymous map. Maps a constant value on a functor.
 --
@@ -90,8 +102,13 @@ instance Functor ((->) t) where
 -- prop> x <$ [a,b,c] == [x,x,x]
 --
 -- prop> x <$ Full q == Full x
-(<$) :: Functor f => a -> f b -> f a
-(<$) = error "todo"
+(<$) ::
+  Functor f =>
+  a
+  -> f b
+  -> f a
+(<$) =
+  error "todo"
 
 -- | Anonymous map producing unit value.
 --
