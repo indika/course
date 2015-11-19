@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Course.Functor where
 
@@ -7,17 +8,22 @@ import Course.Core
 import Course.Id
 import Course.Optional
 import Course.List
-import qualified Prelude as P
+import qualified Prelude as P(fmap)
 
+-- | All instances of the `Functor` type-class must satisfy two laws. These laws
+-- are not checked by the compiler. These laws are given as:
+--
+-- * The law of identity
+--   `∀x. (id <$> x) ≅ x`
+--
+-- * The law of composition
+--   `∀f g x.(f . g <$> x) ≅ (f <$> (g <$> x))`
 class Functor f where
   -- Pronounced, eff-map.
   (<$>) ::
     (a -> b)
     -> f a
     -> f b
-
-
-
 
 infixl 4 <$>
 
@@ -31,10 +37,12 @@ infixl 4 <$>
 -- >>> (+1) <$> Id 2
 -- Id 3
 instance Functor Id where
-  -- data Id a = Id a
-  -- (<$>) :: (a -> b) -> f a -> f b
-  -- (<$>) :: (a -> b) -> Id a -> Id b
-  (<$>) f (Id a) = Id (f a)
+  (<$>) ::
+    (a -> b)
+    -> Id a
+    -> Id b
+  (<$>) =
+    error "todo: Course.Functor (<$>)#instance Id"
 
 -- | Maps a function on the List functor.
 --
@@ -44,13 +52,12 @@ instance Functor Id where
 -- >>> (+1) <$> (1 :. 2 :. 3 :. Nil)
 -- [2,3,4]
 instance Functor List where
-  -- (<$>) :: (a -> b) -> f a -> f b
-  -- (<$>) :: (a -> b) -> List a -> List b
-  -- (<$>) f list = map f list
-  (<$>) _ Nil =
-    Nil
-  (<$>) f (h :. t) =
-    f h :. (f <$> t)
+  (<$>) ::
+    (a -> b)
+    -> List a
+    -> List b
+  (<$>) =
+    error "todo: Course.Functor (<$>)#instance List"
 
 -- | Maps a function on the Optional functor.
 --
@@ -60,46 +67,31 @@ instance Functor List where
 -- >>> (+1) <$> Full 2
 -- Full 3
 instance Functor Optional where
-  -- (<$>) :: (a -> b) -> f a -> f b
-  -- (<$>) :: (a -> b) -> Optional a -> Optional b
-  (<$>) _ Empty =
-    Empty
-  (<$>) f (Full a) =
-    -- f :: a -> b
-    -- a :: a
-    -- f a :: b
-    -- ??? :: Optional b
-    Full (f a)
-  -- (<$>) f optional = mapOptional f optional
+  (<$>) ::
+    (a -> b)
+    -> Optional a
+    -> Optional b
+  (<$>) =
+    error "todo: Course.Functor (<$>)#instance Optional"
 
 -- | Maps a function on the reader ((->) t) functor.
 --
 -- >>> ((+1) <$> (*2)) 8
 -- 17
 instance Functor ((->) t) where
-  -- (<$>) :: (a -> b) -> f a -> f b
-  -- (<$>) :: (a -> b) -> (((->) t) a) -> (((->) t) b)
-  -- (<$>) :: (a -> b) -> (t -> a) -> (t -> b)
-  -- (<$>) :: (a -> b) -> (t -> a) -> t -> b
-  --   (square -> circle) -> (star -> square) -> star -> circle
-  --  f(x) = z,  g(y) = x, x,    ? = z
-  (<$>)       f           g           t  =
-     -- f :: a -> b
-     -- g :: t -> a
-     -- t :: t
-     -- g t :: a
-     -- f (g t) :: b
-     -- undefined :: b
-     f (g t)
-  -- (<$>) = (.)
-
+  (<$>) ::
+    (a -> b)
+    -> ((->) t a)
+    -> ((->) t b)
+  (<$>) =
+    error "todo: Course.Functor (<$>)#((->) t)"
 
 -- | Anonymous map. Maps a constant value on a functor.
 --
--- >>> 7 <$ [1,2,3]
+-- >>> 7 <$ (1 :. 2 :. 3 :. Nil)
 -- [7,7,7]
 --
--- prop> x <$ [a,b,c] == [x,x,x]
+-- prop> x <$ (a :. b :. c :. Nil) == (x :. x :. x :. Nil)
 --
 -- prop> x <$ Full q == Full x
 (<$) ::
@@ -108,11 +100,11 @@ instance Functor ((->) t) where
   -> f b
   -> f a
 (<$) =
-  error "todo"
+  error "todo: Course.Functor#(<$)"
 
 -- | Anonymous map producing unit value.
 --
--- >>> void [1,2,3]
+-- >>> void (1 :. 2 :. 3 :. Nil)
 -- [(),(),()]
 --
 -- >>> void (Full 7)
@@ -128,7 +120,7 @@ void ::
   f a
   -> f ()
 void =
-  error "todo"
+  error "todo: Course.Functor#void"
 
 -----------------------
 -- SUPPORT LIBRARIES --
@@ -139,13 +131,5 @@ void =
 -- >>> reverse <$> (putStr "hi" P.>> P.return ("abc" :: List Char))
 -- hi"cba"
 instance Functor IO where
-  (<$>) =
-    P.fmap
-
-instance Functor [] where
-  (<$>) =
-    P.fmap
-
-instance Functor P.Maybe where
   (<$>) =
     P.fmap

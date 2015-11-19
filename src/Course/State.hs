@@ -1,5 +1,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE RebindableSyntax #-}
 
 module Course.State where
 
@@ -8,9 +10,7 @@ import qualified Prelude as P
 import Course.Optional
 import Course.List
 import Course.Functor
-import Course.Apply
 import Course.Applicative
-import Course.Bind
 import Course.Monad
 import qualified Data.Set as S
 
@@ -35,31 +35,51 @@ newtype State s a =
 -- >>> runState ((+1) <$> pure 0) 0
 -- (1,0)
 instance Functor (State s) where
+  (<$>) ::
+    (a -> b)
+    -> State s a
+    -> State s b
   (<$>) =
-      error "todo"
-
--- | Implement the `Apply` instance for `State s`.
--- >>> runState (pure (+1) <*> pure 0) 0
--- (1,0)
-instance Apply (State s) where
-  (<*>) =
-    error "todo"
+      error "todo: Course.State#(<$>)"
 
 -- | Implement the `Applicative` instance for `State s`.
+--
 -- >>> runState (pure 2) 0
 -- (2,0)
+--
+-- >>> runState (pure (+1) <*> pure 0) 0
+-- (1,0)
+--
+-- >>> import qualified Prelude as P
+-- >>> runState (State (\s -> ((+3), s P.++ ["apple"])) <*> State (\s -> (7, s P.++ ["banana"]))) []
+-- (10,["apple","banana"])
 instance Applicative (State s) where
+  pure ::
+    a
+    -> State s a
   pure =
-    error "todo"
+    error "todo: Course.State pure#instance (State s)"
+  (<*>) ::
+    State s (a -> b)
+    -> State s a
+    -> State s b 
+  (<*>) =
+    error "todo: Course.State (<*>)#instance (State s)"
 
 -- | Implement the `Bind` instance for `State s`.
+--
 -- >>> runState ((const $ put 2) =<< put 1) 0
 -- ((),2)
-instance Bind (State s) where
-  (=<<) =
-    error "todo"
-
+--
+-- >>> let modify f = State (\s -> ((), f s)) in runState (modify (+1) >>= \() -> modify (*2)) 7
+-- ((),16)
 instance Monad (State s) where
+  (=<<) ::
+    (a -> State s b)
+    -> State s a
+    -> State s b
+  (=<<) =
+    error "todo: Course.State (=<<)#instance (State s)"
 
 -- | Run the `State` seeded with `s` and retrieve the resulting state.
 --
@@ -69,7 +89,7 @@ exec ::
   -> s
   -> s
 exec =
-  error "todo"
+  error "todo: Course.State#exec"
 
 -- | Run the `State` seeded with `s` and retrieve the resulting value.
 --
@@ -79,7 +99,7 @@ eval ::
   -> s
   -> a
 eval =
-  error "todo"
+  error "todo: Course.State#eval"
 
 -- | A `State` where the state also distributes into the produced value.
 --
@@ -88,7 +108,7 @@ eval =
 get ::
   State s s
 get =
-  error "todo"
+  error "todo: Course.State#get"
 
 -- | A `State` where the resulting state is seeded with the given value.
 --
@@ -98,7 +118,7 @@ put ::
   s
   -> State s ()
 put =
-  error "todo"
+  error "todo: Course.State#put"
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
@@ -120,7 +140,7 @@ findM ::
   -> List a
   -> f (Optional a)
 findM =
-  error "todo"
+  error "todo: Course.State#findM"
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
@@ -134,7 +154,7 @@ firstRepeat ::
   List a
   -> Optional a
 firstRepeat =
-  error "todo"
+  error "todo: Course.State#firstRepeat"
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -147,7 +167,7 @@ distinct ::
   List a
   -> List a
 distinct =
-  error "todo"
+  error "todo: Course.State#distinct"
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
@@ -155,7 +175,7 @@ distinct =
 --
 -- /Tip:/ Use `findM` with `State` and `produce`.
 --
--- /Tip:/ Use `flatten` to write a @square@ function.
+-- /Tip:/ Use `join` to write a @square@ function.
 --
 -- /Tip:/ Use library functions: @Optional#contains@, @Data.Char#digitToInt@.
 --
@@ -174,4 +194,4 @@ isHappy ::
   Integer
   -> Bool
 isHappy =
-  error "todo"
+  error "todo: Course.State#isHappy"
